@@ -25,4 +25,4 @@ _testmain.go
 .env
 
 # Name of your binary
-drone-plugin-starter
+drone-dispatch
