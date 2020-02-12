@@ -6,6 +6,7 @@ import (
 	"golang.org/x/oauth2"
 	"context"
 	"github.com/google/go-github/v29/github"
+	"strings"
 )
 
 type (
@@ -23,8 +24,8 @@ type (
 	}
 	Config struct {
 		APIKey          string
-		TargetRepo		string
-		TargetOwner     string
+		DispatchRepo	string
+		DispatchOwner   string
 		ClientData		string
 		EventType		string
 	}
@@ -45,24 +46,32 @@ func (p Plugin) Exec() error {
 	if p.Config.APIKey == "" {
 		return fmt.Errorf("You must provide an API key")
 	}
-
+	if p.Config.DispatchOwner == "" {
+		return fmt.Errorf("You must provide an Target owner for dispatch repo: %#v", p.Config)
+	}
+	if p.Config.DispatchRepo == "" {
+		return fmt.Errorf("You must provide an Target Repo to dispatch")
+	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: p.Config.APIKey})
 	tc := oauth2.NewClient(ctx, ts)
 
 	client := github.NewClient(tc)
 
-
-	jsonClientData := json.RawMessage(p.Config.ClientData)
+	clientData := strings.TrimSuffix(p.Config.ClientData, "\n")
+	bytes, err := json.Marshal(clientData)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal json client data: %v", err)
+	}
+	payload := json.RawMessage(bytes)
 	dispatchOptions := github.DispatchRequestOptions{
 		EventType:     p.Config.EventType,
-		ClientPayload: &jsonClientData,
+		ClientPayload: &payload,
 	}
 
-
-	_, _, err := client.Repositories.Dispatch(ctx, p.Config.TargetOwner, p.Config.TargetRepo, dispatchOptions)
+	_, _, err = client.Repositories.Dispatch(ctx, p.Config.DispatchOwner, p.Config.DispatchRepo, dispatchOptions)
 	if err != nil {
-		return fmt.Errorf("Failed to send dispatch to repo %s: %v", p.Config.TargetRepo, err)
+		return fmt.Errorf("Failed to send dispatch to repo %s: %v with client_data: %v", p.Config.DispatchRepo, err, string(payload))
 	}
 	return nil
 }

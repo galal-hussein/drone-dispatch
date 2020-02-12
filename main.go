@@ -23,24 +23,24 @@ func main() {
 			EnvVar: "PLUGIN_API_KEY,GITHUB_RELEASE_API_KEY,GITHUB_TOKEN",
 		},
 		cli.StringFlag{
-			Name:   "target-repo",
+			Name:   "dispatch-repo",
 			Usage:  "The name of the repo to send the dispatch event to",
-			EnvVar: "TARGET_REPO",
+			EnvVar: "PLUGIN_DISPATCH_REPO",
 		},
 		cli.StringFlag{
-			Name:   "target-owner",
+			Name:   "dispatch-owner",
 			Usage:  "The name of the repo owner to send the dispatch event to",
-			EnvVar: "TARGET_OWNER",
+			EnvVar: "PLUGIN_DISPATCH_OWNER",
 		},
 		cli.StringFlag{
 			Name:   "client-data",
 			Usage:  "Client data to send with the dispatch event",
-			EnvVar: "CLIENT_DATA",
+			EnvVar: "PLUGIN_CLIENT_DATA",
 		},
 		cli.StringFlag{
 			Name:   "event-type",
 			Usage:  "The dispatch request event type",
-			EnvVar: "EVENT_TYPE",
+			EnvVar: "PLUGIN_EVENT_TYPE",
 		},
 		cli.StringFlag{
 			Name:   "repo.fullname",
@@ -89,8 +89,8 @@ func run(c *cli.Context) {
 		Config: Config{
 			APIKey:          c.String("api-key"),
 			ClientData:      c.String("client-data"),
-			TargetRepo:      c.String("target-repo"),
-			TargetOwner:	 c.String("target-owner"),
+			DispatchRepo:    c.String("dispatch-repo"),
+			DispatchOwner:	 c.String("dispatch-owner"),
 			EventType:		 c.String("event-type"),
 		},
 	}
